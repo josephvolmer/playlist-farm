@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  spotifyId     String?   @unique
+
+  // SMTP Settings
+  smtpHost      String?
+  smtpPort      Int?
+  smtpUser      String?
+  smtpPassword  String?   // Encrypted
+  smtpFromEmail String?
+  smtpFromName  String?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  pitches       PlaylistPitch[]
+
+  @@map("users")
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+  @@map("verification_tokens")
+}
+
+// Curated playlist database - manually maintained by admins
+model CuratedPlaylist {
+  id              String   @id @default(cuid())
+  spotifyId       String   @unique
+  name            String
+  description     String?
+  imageUrl        String?
+  curatorName     String
+  curatorEmail    String?  // For pitch emails
+  curatorInstagram String?
+  curatorWebsite  String?
+  followers       Int      @default(0)
+  genres          String[] // e.g. ["indie rock", "alternative"]
+  moods           String[] // e.g. ["chill", "upbeat"]
+  isActive        Boolean  @default(true)
+  acceptsSubmissions Boolean @default(true)
+  submissionNotes String?  // Special instructions for artists
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  pitches PlaylistPitch[]
+
+  @@map("curated_playlists")
+}
+
+// Track which playlists users have pitched to (prevent duplicates)
+model PlaylistPitch {
+  id              String   @id @default(cuid())
+  userId          String
+  playlistId      String
+  spotifyTrackId  String
+  trackName       String
+  artistName      String
+  emailDrafted    Boolean  @default(false)
+  emailSent       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  playlist CuratedPlaylist  @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, playlistId, spotifyTrackId])
+  @@index([userId])
+  @@index([playlistId])
+  @@map("playlist_pitches")
+}

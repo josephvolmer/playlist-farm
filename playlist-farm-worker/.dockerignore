@@ -1,0 +1,29 @@
+# Worker-specific .dockerignore
+node_modules
+npm-debug.log
+yarn-error.log
+pnpm-debug.log*
+
+# Misc
+.DS_Store
+*.pem
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+!prisma/*.md

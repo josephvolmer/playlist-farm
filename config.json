@@ -1,0 +1,94 @@
+{
+  "$schema": "./config.schema.json",
+  "version": "1.0.0",
+  "project": {
+    "name": "Playlist Farm",
+    "description": "Music platform with playlist curation and artist pitching"
+  },
+  "worker": {
+    "sync": {
+      "schedule": "*/30 * * * *",
+      "scheduleDescription": "Every 30 minutes",
+      "enabled": true,
+      "timeout": 600000,
+      "retryAttempts": 3,
+      "retryDelay": 60000
+    },
+    "api": {
+      "requestTimeout": 30000,
+      "maxRetries": 3,
+      "batchSize": 100
+    },
+    "logging": {
+      "level": "info",
+      "includeTimestamps": true,
+      "logFile": "/var/log/cron.log"
+    }
+  },
+  "database": {
+    "poolSize": 10,
+    "connectionTimeout": 30000,
+    "queryTimeout": 60000,
+    "enableQueryLogging": false
+  },
+  "app": {
+    "features": {
+      "enableRegistration": true,
+      "enablePitching": true,
+      "requireEmailVerification": false,
+      "enableStripePayments": true
+    },
+    "limits": {
+      "maxPitchesPerUser": 10,
+      "maxPitchesPerDay": 3,
+      "maxUploadSize": 5242880,
+      "sessionTimeout": 2592000
+    },
+    "ui": {
+      "itemsPerPage": 20,
+      "enableDarkMode": true,
+      "defaultTheme": "system"
+    }
+  },
+  "email": {
+    "enabled": true,
+    "rateLimit": {
+      "maxPerHour": 100,
+      "maxPerDay": 500
+    },
+    "templates": {
+      "fromName": "Playlist Farm",
+      "replyToEnabled": true
+    }
+  },
+  "security": {
+    "session": {
+      "maxAge": 2592000,
+      "updateAge": 86400
+    },
+    "rateLimit": {
+      "enabled": true,
+      "windowMs": 900000,
+      "maxRequests": 100
+    },
+    "cors": {
+      "enabled": false,
+      "allowedOrigins": []
+    }
+  },
+  "monitoring": {
+    "healthCheck": {
+      "enabled": true,
+      "interval": 60000
+    },
+    "metrics": {
+      "enabled": false,
+      "endpoint": "/metrics"
+    }
+  },
+  "maintenance": {
+    "enabled": false,
+    "message": "We're currently performing scheduled maintenance. Please check back soon.",
+    "allowedIPs": []
+  }
+}

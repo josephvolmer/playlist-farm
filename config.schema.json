@@ -1,0 +1,339 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Playlist Farm Configuration",
+  "description": "Global configuration for the Playlist Farm platform",
+  "type": "object",
+  "required": ["version", "project", "worker", "database", "app"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "version": {
+      "type": "string",
+      "description": "Configuration version",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "project": {
+      "type": "object",
+      "required": ["name", "description"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Project name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Project description"
+        }
+      }
+    },
+    "worker": {
+      "type": "object",
+      "required": ["sync"],
+      "properties": {
+        "sync": {
+          "type": "object",
+          "required": ["schedule", "enabled"],
+          "properties": {
+            "schedule": {
+              "type": "string",
+              "description": "Cron schedule expression (e.g., '0 */6 * * *')",
+              "pattern": "^[\\d\\*\\/\\-,]+ [\\d\\*\\/\\-,]+ [\\d\\*\\/\\-,]+ [\\d\\*\\/\\-,]+ [\\d\\*\\/\\-,]+$"
+            },
+            "scheduleDescription": {
+              "type": "string",
+              "description": "Human-readable schedule description"
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether sync is enabled"
+            },
+            "timeout": {
+              "type": "integer",
+              "description": "Sync timeout in milliseconds",
+              "minimum": 1000
+            },
+            "retryAttempts": {
+              "type": "integer",
+              "description": "Number of retry attempts on failure",
+              "minimum": 0,
+              "maximum": 10
+            },
+            "retryDelay": {
+              "type": "integer",
+              "description": "Delay between retries in milliseconds",
+              "minimum": 1000
+            }
+          }
+        },
+        "api": {
+          "type": "object",
+          "properties": {
+            "requestTimeout": {
+              "type": "integer",
+              "description": "API request timeout in milliseconds",
+              "minimum": 1000
+            },
+            "maxRetries": {
+              "type": "integer",
+              "description": "Maximum API request retries",
+              "minimum": 0
+            },
+            "batchSize": {
+              "type": "integer",
+              "description": "Number of items to process in a batch",
+              "minimum": 1
+            }
+          }
+        },
+        "logging": {
+          "type": "object",
+          "properties": {
+            "level": {
+              "type": "string",
+              "enum": ["error", "warn", "info", "debug"],
+              "description": "Logging level"
+            },
+            "includeTimestamps": {
+              "type": "boolean",
+              "description": "Include timestamps in logs"
+            },
+            "logFile": {
+              "type": "string",
+              "description": "Path to log file"
+            }
+          }
+        }
+      }
+    },
+    "database": {
+      "type": "object",
+      "properties": {
+        "poolSize": {
+          "type": "integer",
+          "description": "Database connection pool size",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "connectionTimeout": {
+          "type": "integer",
+          "description": "Connection timeout in milliseconds",
+          "minimum": 1000
+        },
+        "queryTimeout": {
+          "type": "integer",
+          "description": "Query timeout in milliseconds",
+          "minimum": 1000
+        },
+        "enableQueryLogging": {
+          "type": "boolean",
+          "description": "Enable Prisma query logging"
+        }
+      }
+    },
+    "app": {
+      "type": "object",
+      "required": ["features", "limits"],
+      "properties": {
+        "features": {
+          "type": "object",
+          "properties": {
+            "enableRegistration": {
+              "type": "boolean",
+              "description": "Allow new user registration"
+            },
+            "enablePitching": {
+              "type": "boolean",
+              "description": "Enable playlist pitching feature"
+            },
+            "requireEmailVerification": {
+              "type": "boolean",
+              "description": "Require email verification for new users"
+            },
+            "enableStripePayments": {
+              "type": "boolean",
+              "description": "Enable Stripe payment processing"
+            }
+          }
+        },
+        "limits": {
+          "type": "object",
+          "properties": {
+            "maxPitchesPerUser": {
+              "type": "integer",
+              "description": "Maximum pitches per user (total)",
+              "minimum": 0
+            },
+            "maxPitchesPerDay": {
+              "type": "integer",
+              "description": "Maximum pitches per user per day",
+              "minimum": 0
+            },
+            "maxUploadSize": {
+              "type": "integer",
+              "description": "Maximum file upload size in bytes",
+              "minimum": 1024
+            },
+            "sessionTimeout": {
+              "type": "integer",
+              "description": "Session timeout in seconds",
+              "minimum": 60
+            }
+          }
+        },
+        "ui": {
+          "type": "object",
+          "properties": {
+            "itemsPerPage": {
+              "type": "integer",
+              "description": "Items to display per page",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "enableDarkMode": {
+              "type": "boolean",
+              "description": "Enable dark mode support"
+            },
+            "defaultTheme": {
+              "type": "string",
+              "enum": ["light", "dark", "system"],
+              "description": "Default theme"
+            }
+          }
+        }
+      }
+    },
+    "email": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable email sending"
+        },
+        "rateLimit": {
+          "type": "object",
+          "properties": {
+            "maxPerHour": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "maxPerDay": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "templates": {
+          "type": "object",
+          "properties": {
+            "fromName": {
+              "type": "string"
+            },
+            "replyToEnabled": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "security": {
+      "type": "object",
+      "properties": {
+        "session": {
+          "type": "object",
+          "properties": {
+            "maxAge": {
+              "type": "integer",
+              "description": "Session max age in seconds",
+              "minimum": 60
+            },
+            "updateAge": {
+              "type": "integer",
+              "description": "Session update interval in seconds",
+              "minimum": 60
+            }
+          }
+        },
+        "rateLimit": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "windowMs": {
+              "type": "integer",
+              "minimum": 1000
+            },
+            "maxRequests": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "cors": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "allowedOrigins": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "monitoring": {
+      "type": "object",
+      "properties": {
+        "healthCheck": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "interval": {
+              "type": "integer",
+              "minimum": 1000
+            }
+          }
+        },
+        "metrics": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "endpoint": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "maintenance": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable maintenance mode"
+        },
+        "message": {
+          "type": "string",
+          "description": "Maintenance mode message"
+        },
+        "allowedIPs": {
+          "type": "array",
+          "description": "IPs allowed during maintenance",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

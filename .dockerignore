@@ -1,0 +1,37 @@
+# Root-level .dockerignore
+# This is used when building from the root context
+
+# Git
+.git
+.gitignore
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+*.pem
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Other components (exclude when building one component)
+playlist-farm-app/node_modules
+playlist-farm-worker/node_modules
+playlist-farm-tool/__pycache__
+playlist-farm-tool/*.egg-info
+
+# Build artifacts
+.next
+out
+dist
+
+# Documentation (root level only)
+README.md
+LICENSE

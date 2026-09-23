@@ -1,0 +1,44 @@
+# Dockerfile for Playlist Sync Worker
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install Python and pip for playlist-farm CLI tool
+RUN apk add --no-cache python3 py3-pip
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Copy package files and Prisma schema first (needed for postinstall)
+COPY playlist-farm-worker/package.json playlist-farm-worker/pnpm-lock.yaml* ./
+COPY playlist-farm-worker/prisma ./prisma
+
+# Install dependencies (this will run prisma generate via postinstall)
+RUN pnpm install --frozen-lockfile --prod=false
+
+# Copy worker script
+COPY playlist-farm-worker/sync-playlists.ts ./
+
+# Install supercronic for cron jobs
+# Using supercronic instead of regular cron because it works better in containers
+RUN apk add --no-cache curl jq && \
+    curl -fsSLO https://github.com/aptible/supercronic/releases/download/v0.2.29/supercronic-linux-amd64 && \
+    chmod +x supercronic-linux-amd64 && \
+    mv supercronic-linux-amd64 /usr/local/bin/supercronic
+
+# Copy and install playlist-farm CLI tool
+COPY playlist-farm-tool /playlist-farm-tool
+WORKDIR /playlist-farm-tool
+RUN pip3 install --break-system-packages -e .
+
+WORKDIR /app
+
+# Note: shared-config.ts and entrypoint-worker.sh will be mounted via volumes in docker-compose.yml
+
+# Create log file
+RUN touch /var/log/cron.log
+
+ENV NODE_ENV=production
+
+# Default command (will be overridden by entrypoint in docker-compose.yml)
+CMD ["sh", "-c", "tail -f /var/log/cron.log"]

@@ -22,7 +22,3 @@ npm-debug.log*
 # Prisma local database
 prisma/*.db
 prisma/*.db-journal
-
-# Already published as josephvolmer/playlist-farm (Nov 2025). This directory
-# is the newer platform work around it; the tool keeps its own repository.
-playlist-farm-tool/

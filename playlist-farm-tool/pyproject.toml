@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "playlist-farm"
+version = "1.0.0"
+description = "Systematically collect Spotify playlist curator contact information"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Joseph Volmer"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Multimedia :: Sound/Audio",
+    "Programming Language :: Python :: 3",
+]
+
+dependencies = [
+    "requests>=2.31.0",
+    "openpyxl>=3.1.2",
+    "textual>=1.0.0",
+    "rich>=13.9.4",
+    "prompt-toolkit>=3.0.47",
+    "psycopg2-binary>=2.9.9",
+    "sqlalchemy>=2.0.23",
+]
+
+[project.scripts]
+playlist-farm = "playlist_farm.cli.main:main"
+playlist-farm-tui = "playlist_farm.tui.app:main"
+playlist-farm-analyze = "playlist_farm.cli.analyze:main"
+playlist-farm-setup = "playlist_farm.cli.setup:main"
+
+[project.urls]
+Homepage = "https://github.com/josephvolmer/playlist-farm"
+Documentation = "https://github.com/josephvolmer/playlist-farm"
+Repository = "https://github.com/josephvolmer/playlist-farm"
